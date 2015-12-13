@@ -7,13 +7,18 @@
 
 Dependency Injection container inspired by PHP-DI.
 
+## Current status
+
+This library is a work-in-progress. APIs can (and most likely will) change
+without notice.
+
 ## Installation
 
 There is no Pub package yet so you have to use git dependency for now:
 
 ```yaml
 dependencies:
-  corsac_router:
+  corsac_di:
     git: https://github.com/corsac-dart/di.git
 ```
 
