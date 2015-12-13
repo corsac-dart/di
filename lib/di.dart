@@ -1,4 +1,4 @@
-library dart_di;
+library corsac_di;
 
 import 'dart:io';
 import 'dart:mirrors';

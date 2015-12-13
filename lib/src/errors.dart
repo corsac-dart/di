@@ -1,4 +1,4 @@
-part of dart_di;
+part of corsac_di;
 
 /// Base class for all container related errors.
 class ContainerError {}

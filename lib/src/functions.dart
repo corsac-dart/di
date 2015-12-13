@@ -1,4 +1,4 @@
-part of dart_di;
+part of corsac_di;
 
 ObjectResolver object([Type type]) {
   return new ObjectResolver()..type = type;

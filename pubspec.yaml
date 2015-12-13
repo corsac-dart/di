@@ -1,11 +1,12 @@
-name: 'dart_di'
-version: 0.1.0
-description: DI container for Dartlang
-author: Anatoly Pulyaevskiy <email@example.com>
-homepage: https://github.com/pulyaevskiy/dart-di
+name: corsac_di
+version: 0.1.0-dev
+description: Dependency Injection container.
+author: Anatoly Pulyaevskiy <anatoly.pulyaevskiy@gmail.com>
+homepage: https://github.com/corsac-dart/di
 
 environment:
   sdk: '>=1.9.0 <2.0.0'
 
 dev_dependencies:
   test: "^0.12.4+7"
+  dart_coveralls: "^0.4.0"

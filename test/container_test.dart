@@ -2,7 +2,7 @@ library corsac_di.test.container;
 
 import 'dart:io';
 import 'package:test/test.dart';
-import 'package:dart_di/di.dart' as di;
+import 'package:corsac_di/di.dart' as di;
 
 void main() {
   test("it resolves objects automagically", () {

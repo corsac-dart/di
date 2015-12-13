@@ -1,4 +1,4 @@
-part of dart_di;
+part of corsac_di;
 
 abstract class DefinitionResolver {
   dynamic resolve(Container container);

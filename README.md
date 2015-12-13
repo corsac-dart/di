@@ -5,7 +5,7 @@ Dependency Injection container inspired by PHP-DI.
 Usage:
 
 ```dart
-import 'package:dart_di/di.dart' as di;
+import 'package:corsac_di/di.dart' as di;
 
 var container = new di.Container();
 
@@ -16,7 +16,7 @@ instance.doThings();
 Providing service definitions and binding parameters:
 
 ```dart
-import 'package:dart_di/di.dart' as di;
+import 'package:corsac_di/di.dart' as di;
 
 // Example services
 abstract class YourServiceInterface {}

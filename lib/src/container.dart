@@ -1,4 +1,4 @@
-part of dart_di;
+part of corsac_di;
 
 abstract class Container {
   /// Returns service specified by [id] from this Container.
