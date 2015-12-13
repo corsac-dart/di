@@ -13,7 +13,7 @@ void main() {
       var secondCallService = container.get(MyService);
       expect(secondCallService, same(service));
     });
-    test("it resolves objects", () {
+    test("it resolves objects from definition", () {
       var definitions = {MyService: di.object(),};
 
       var container = new di.Container.build(definitions);
@@ -58,6 +58,22 @@ void main() {
       expect(() => container.get(OneParameter), throwsStateError);
     });
 
+    test("it resolves references automagically", () {
+      var container = new di.Container();
+      DependentService depService = container.get(DependentService);
+      expect(depService, new isInstanceOf<DependentService>());
+      expect(depService.myService, new isInstanceOf<MyService>());
+      expect(container.get(MyService), same(depService.myService));
+    });
+
+    test("it resolves references via di.get()", () {
+      var config = {UserRepository: di.get(UserInMemoryRepository),};
+      var container = new di.Container.build(config);
+
+      UserRepository repository = container.get(UserRepository);
+      expect(repository, new isInstanceOf<UserInMemoryRepository>());
+    });
+
     test("it resolves environment variables", () {
       var definitions = {'CurrentDir': di.env('PWD')};
       var container = new di.Container.build(definitions);
@@ -79,3 +95,12 @@ class OneParameter {
   final String foo;
   OneParameter(this.prop, [this.foo]);
 }
+
+class DependentService {
+  final MyService myService;
+  DependentService(this.myService);
+}
+
+abstract class UserRepository {}
+
+class UserInMemoryRepository implements UserRepository {}
