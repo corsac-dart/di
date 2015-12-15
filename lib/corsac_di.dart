@@ -1,3 +1,4 @@
+/// Dependency Injection container.
 library corsac_di;
 
 import 'dart:io';

@@ -30,7 +30,7 @@ using this container can be as simple as instantiating it and asking for your
 service. Example:
 
 ```dart
-import 'package:corsac_di/di.dart' as di;
+import 'package:corsac_di/corsac_di.dart' as di;
 
 void main() {
   var container = new di.Container();
@@ -47,7 +47,7 @@ In this case you can provide a configuration object where you can specify
 which implementation particular interface should be bound to. Example:
 
 ```dart
-import 'package:corsac_di/di.dart' as di;
+import 'package:corsac_di/corsac_di.dart' as di;
 
 // Example repository interface
 abstract class UserRepository {
@@ -81,7 +81,7 @@ The `di.object()` helper provides flexible interface for configuring which
 constructor should be used and binding constructor parameters if necessary:
 
 ```dart
-import 'package:corsac_di/di.dart' as di;
+import 'package:corsac_di/corsac_di.dart' as di;
 
 class PostgreConnection {
   final String username;
