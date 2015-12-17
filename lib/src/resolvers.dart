@@ -49,7 +49,7 @@ class ObjectResolver implements DefinitionResolver {
         (value is DefinitionResolver) ? value : new StaticValueResolver(value);
     if (value is ObjectResolver) {
       throw new StateError(
-          'Unsupported. Please use di.get() instead of di.object() when binding constructor parameters.');
+          'Unsupported. Please use DI.get() instead of DI.object() when binding constructor parameters.');
     }
     _parameters[new Symbol(parameterName)] = value;
   }

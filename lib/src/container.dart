@@ -1,14 +1,11 @@
 part of corsac_di;
 
+/// Service container.
 abstract class Container {
   /// Returns service specified by [id] from this Container.
   dynamic get(dynamic id);
 
-  /// Checks whether service exists in this Container.
-  bool has(dynamic id);
-
-  factory Container() => new _Container({});
-
+  /// Builds new container based on configuration provided in [definitions].
   factory Container.build(Map<dynamic, dynamic> definitions) {
     var resolvers = {};
     for (var id in definitions.keys) {
@@ -52,10 +49,5 @@ class _Container implements Container {
     } else {
       throw new StateError("Can't find resolver for ${id}");
     }
-  }
-
-  @override
-  bool has(id) {
-    return false;
   }
 }

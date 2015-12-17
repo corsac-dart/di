@@ -30,10 +30,10 @@ using this container can be as simple as instantiating it and asking for your
 service. Example:
 
 ```dart
-import 'package:corsac_di/corsac_di.dart' as di;
+import 'package:corsac_di/corsac_di.dart';
 
 void main() {
-  var container = new di.Container();
+  var container = new Container();
 
   YourService instance = container.get(YourService);
   instance.doThings();
@@ -47,7 +47,7 @@ In this case you can provide a configuration object where you can specify
 which implementation particular interface should be bound to. Example:
 
 ```dart
-import 'package:corsac_di/corsac_di.dart' as di;
+import 'package:corsac_di/corsac_di.dart';
 
 // Example repository interface
 abstract class UserRepository {
@@ -65,23 +65,23 @@ class UserPostgreSqlRepository {
 }
 
 void main() {
-  // Use di.get() to bind interface to implementation:
+  // Use DI.get() to bind interface to implementation:
   var config = {
-    UserRepository: di.get(UserPostgreSqlRepository),
+    UserRepository: DI.get(UserPostgreSqlRepository),
   };
-  var container = new di.Container.build(config);
+  var container = new Container.build(config);
 
   var user = container.get(UserRepository).findById(5);
 }
 ```
 
-In addition to `di.get()` there are a few more helpers available.
+In addition to `DI.get()` there are a few more helpers available.
 
-The `di.object()` helper provides flexible interface for configuring which
+The `DI.object()` helper provides flexible interface for configuring which
 constructor should be used and binding constructor parameters if necessary:
 
 ```dart
-import 'package:corsac_di/corsac_di.dart' as di;
+import 'package:corsac_di/corsac_di.dart';
 
 class PostgreConnection {
   final String username;
@@ -94,20 +94,20 @@ class PostgreConnection {
 
 void main() {
   var config = {
-    PostgreConnection: di.object()
+    PostgreConnection: DI.object()
       ..constructor = 'connect'
-      ..bindParameter('username', di.env('POSTGRE_USERNAME'))
-      ..bindParameter('password', di.env('POSTGRE_PASSWORD')),
+      ..bindParameter('username', DI.env('POSTGRE_USERNAME'))
+      ..bindParameter('password', DI.env('POSTGRE_PASSWORD')),
   };
-  var container = new di.Container.build(config);
+  var container = new Container.build(config);
   container.get(PostgreConnection).query('select * from users;');
   // etc...
 }
 ```
 
-In the example above you can also notice usage of the `di.env()` helper.
+In the example above you can also notice usage of the `DI.env()` helper.
 
-The `di.env()` helper fetches value of an environment variable so that container
+The `DI.env()` helper fetches value of an environment variable so that container
 can pass it in the constructor parameter when instantiating an entry.
 
 ## License
