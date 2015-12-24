@@ -99,7 +99,7 @@ class ObjectResolver implements DefinitionResolver {
               resolvedValues.add(container.get(param.type.reflectedType));
             } catch (e) {
               throw new StateError(
-                  'Can not resolve parameter ${param.simpleName}');
+                  'Can not resolve parameter ${param.simpleName}. Error: ${e}.');
             }
           } else {
             throw new StateError(
