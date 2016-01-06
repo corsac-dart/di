@@ -5,18 +5,37 @@ abstract class Container {
   /// Returns service specified by [id] from this Container.
   dynamic get(dynamic id);
 
-  /// Builds new container based on configuration provided in [definitions].
-  factory Container.build(Map<dynamic, dynamic> definitions) {
-    var resolvers = {};
-    for (var id in definitions.keys) {
-      if (definitions[id] is DefinitionResolver) {
-        if (definitions[id] is ObjectResolver) {
-          ObjectResolver resolver = definitions[id];
-          if (resolver.type == null) resolver.type = id;
+  /// Creates new container.
+  ///
+  /// If you want to pass configurations for container entries use the `build()`
+  /// factory instead.
+  factory Container() {
+    return new _Container(new Map());
+  }
+
+  /// Builds new container based on configuration provided in [configs].
+  factory Container.build(List<Map<dynamic, dynamic>> configs) {
+    var resolvers = new Map();
+    for (var definitions in configs) {
+      for (var id in definitions.keys) {
+        var def = definitions[id];
+        if (def is Iterable) {
+          resolvers[id] = new ListResolver(def);
+        } else if (def is ListExtensionHelper) {
+          Iterable items = def.items;
+          if (resolvers.containsKey(id)) {
+            (resolvers[id] as ListResolver).list.addAll(items);
+          } else {
+            resolvers[id] = new ListResolver(items);
+          }
+        } else if (def is DefinitionResolver) {
+          if (def is ObjectResolver) {
+            def.type ??= id;
+          }
+          resolvers[id] = def;
+        } else {
+          resolvers[id] = new StaticValueResolver(def);
         }
-        resolvers[id] = definitions[id];
-      } else {
-        resolvers[id] = new StaticValueResolver(definitions[id]);
       }
     }
     return new _Container(resolvers);

@@ -138,3 +138,36 @@ class EnvironmentVariableResolver implements DefinitionResolver {
     }
   }
 }
+
+/// Resolver for dynamic lists.
+class ListResolver implements DefinitionResolver {
+  final List list = new List();
+
+  List _resolvedList;
+
+  ListResolver(Iterable items) {
+    list.addAll(items);
+  }
+
+  @override
+  dynamic resolve(Container container) {
+    if (_resolvedList == null) {
+      _resolvedList = new List();
+      for (var item in list) {
+        if (item is DefinitionResolver) {
+          _resolvedList.add(item.resolve(container));
+        } else {
+          _resolvedList.add(item);
+        }
+      }
+    }
+
+    return _resolvedList;
+  }
+}
+
+class ListExtensionHelper {
+  final Iterable items;
+
+  ListExtensionHelper(this.items);
+}

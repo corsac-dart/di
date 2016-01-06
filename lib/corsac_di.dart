@@ -7,7 +7,7 @@ import 'dart:mirrors';
 part 'src/container.dart';
 part 'src/resolvers.dart';
 
-/// Constant providing easy access to helpers in [DIHelpers].
+/// Constant providing easy access to helper functions in [DIHelpers].
 const DIHelpers DI = const DIHelpers();
 
 /// Convenience helpers for building service configuration.
@@ -104,4 +104,7 @@ class DIHelpers {
   /// This way when you request `TwitterApiClient` from container you will
   /// actually get instance of `TwitterMockClient`.
   ReferenceResolver get(dynamic id) => new ReferenceResolver(id);
+
+  /// Helper for extending dynamic lists.
+  ListExtensionHelper add(Iterable items) => new ListExtensionHelper(items);
 }
