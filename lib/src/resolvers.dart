@@ -1,7 +1,7 @@
 part of corsac_di;
 
 abstract class DefinitionResolver {
-  dynamic resolve(Container container);
+  dynamic resolve(DIContainer container);
 }
 
 class ReferenceResolver implements DefinitionResolver {
@@ -10,7 +10,7 @@ class ReferenceResolver implements DefinitionResolver {
   ReferenceResolver(this.id);
 
   @override
-  resolve(Container container) => container.get(id);
+  resolve(DIContainer container) => container.get(id);
 }
 
 class StaticValueResolver implements DefinitionResolver {
@@ -19,17 +19,17 @@ class StaticValueResolver implements DefinitionResolver {
   StaticValueResolver(this.value);
 
   @override
-  dynamic resolve(Container container) => value;
+  dynamic resolve(DIContainer container) => value;
 }
 
-typedef dynamic EntryFactory(Container container);
+typedef dynamic EntryFactory(DIContainer container);
 
 class FactoryResolver implements DefinitionResolver {
   final EntryFactory func;
 
   FactoryResolver(this.func);
   @override
-  resolve(Container container) {
+  resolve(DIContainer container) {
     return func(container);
   }
 }
@@ -55,7 +55,7 @@ class ObjectResolver implements DefinitionResolver {
   }
 
   @override
-  dynamic resolve(Container container) {
+  dynamic resolve(DIContainer container) {
     if (_isResolving) throw new StateError(
         'Circular dependency detected for ${type}.');
 
@@ -80,7 +80,7 @@ class ObjectResolver implements DefinitionResolver {
   }
 
   List<dynamic> _resolvePositionalParameters(
-      ClassMirror mirror, Container container) {
+      ClassMirror mirror, DIContainer container) {
     var resolvedValues = [];
     var constructorSymbol = (constructor is String)
         ? new Symbol(mirror.reflectedType.toString() + '.' + constructor)
@@ -129,7 +129,7 @@ class EnvironmentVariableResolver implements DefinitionResolver {
   EnvironmentVariableResolver(this.variableName);
 
   @override
-  dynamic resolve(Container container) {
+  dynamic resolve(DIContainer container) {
     if (dotenv.env.containsKey(variableName)) {
       return dotenv.env[variableName];
     } else {
@@ -150,7 +150,7 @@ class ListResolver implements DefinitionResolver {
   }
 
   @override
-  dynamic resolve(Container container) {
+  dynamic resolve(DIContainer container) {
     if (_resolvedList == null) {
       _resolvedList = new List();
       for (var item in list) {

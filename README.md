@@ -33,7 +33,7 @@ service. Example:
 import 'package:corsac_di/corsac_di.dart';
 
 void main() {
-  var container = new Container();
+  var container = new DIContainer();
 
   YourService instance = container.get(YourService);
   instance.doThings();
@@ -69,7 +69,7 @@ void main() {
   var config = {
     UserRepository: DI.get(UserPostgreSqlRepository),
   };
-  var container = new Container.build([config]);
+  var container = new DIContainer.build([config]);
 
   var user = container.get(UserRepository).findById(5);
 }
@@ -99,7 +99,7 @@ void main() {
       ..bindParameter('username', DI.env('POSTGRE_USERNAME'))
       ..bindParameter('password', DI.env('POSTGRE_PASSWORD')),
   };
-  var container = new Container.build([config]);
+  var container = new DIContainer.build([config]);
   container.get(PostgreConnection).query('select * from users;');
   // etc...
 }
@@ -148,7 +148,7 @@ void main() {
   var module2Config = {
     'migrations': DI.add([DI.get(Module2Migrations)]),
   };
-  var container = new Container.build([
+  var container = new DIContainer.build([
     baseConfig,
     module1Config,
     module2Config

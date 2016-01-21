@@ -1,4 +1,4 @@
-/// Dependency Injection container.
+/// Library implementing Dependency Injection container.
 library corsac_di;
 
 import 'dart:mirrors';
@@ -28,7 +28,7 @@ class DIHelpers {
   const DIHelpers();
 
   /// Returns configuration resolver for entries which should be instantiated
-  /// by the [Container].
+  /// by the [DIContainer].
   ///
   /// Returned resolver allows to configure which constructor to use for
   /// instantiating the entry and also bind constructor parameters to
@@ -45,7 +45,7 @@ class DIHelpers {
   ///       // In this case container.get(UserRepository) will return instance
   ///       // of UserMockRepository.
   ///       UserRepository: DI.object(UserMockRepository),
-  ///       // Container will try to instantiate this entry with
+  ///       // DIContainer will try to instantiate this entry with
   ///       // new UserMockRepository.withFixtures(fixtures);
   ///       UserMockRepository: DI.object()
   ///         ..constructor = 'withFixtures'
