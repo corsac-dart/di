@@ -130,8 +130,8 @@ class EnvironmentVariableResolver implements DefinitionResolver {
 
   @override
   dynamic resolve(Container container) {
-    if (Platform.environment.containsKey(variableName)) {
-      return Platform.environment[variableName];
+    if (dotenv.env.containsKey(variableName)) {
+      return dotenv.env[variableName];
     } else {
       throw new StateError(
           'Specified environment variable ${variableName} is not set.');

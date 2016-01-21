@@ -3,9 +3,14 @@ library corsac_di.test.container;
 import 'dart:io';
 import 'package:test/test.dart';
 import 'package:corsac_di/corsac_di.dart';
+import 'package:dotenv/dotenv.dart';
 
 void main() {
   group('Container:', () {
+    test('it can be created without configuration', () {
+      var container = new Container();
+      expect(container, new isInstanceOf<Container>());
+    });
     test("it resolves objects automagically", () {
       var container = new Container.build([{}]);
       var service = container.get(MyService);
@@ -75,13 +80,37 @@ void main() {
     });
 
     test("it resolves environment variables", () {
-      var definitions = {'HomeDir': DI.env('HOME')};
+      var definitions = {
+        'HomeDir': DI.env('HOME'),
+        OneParameter: DI.object()
+          ..bindParameter('prop', 1)
+          ..bindParameter('foo', DI.env('HOME'))
+      };
       var container = new Container.build([definitions]);
-      var result = container.get('HomeDir');
-      expect(result, isNotNull);
-      expect(result, equals(Platform.environment['HOME']));
+      var homeDir = container.get('HomeDir');
+      expect(homeDir, isNotNull);
+      expect(homeDir, equals(Platform.environment['HOME']));
+      OneParameter service = container.get(OneParameter);
+      expect(service.foo, equals(Platform.environment['HOME']));
     });
 
+    test("it resolves to dotenv vars if not found in the Platform env", () {
+      env['MY_PASSWORD'] = 'secret';
+      var definitions = {'Password': DI.env('MY_PASSWORD'),};
+      var container = new Container.build([definitions]);
+      var homeDir = container.get('Password');
+      expect(homeDir, equals('secret'));
+    });
+
+    test('it throws DIError if entry can not be resolved', () {
+      var c = new Container();
+      expect(() {
+        c.get('Test');
+      }, throwsA(new isInstanceOf<DIError>()));
+    });
+  });
+
+  group('Dynamic Lists:', () {
     test('it resolves lists with overrides', () {
       var definitions = {'migrations': new List()};
       var definitions2 = {
@@ -92,6 +121,30 @@ void main() {
       expect(result, new isInstanceOf<List>());
       expect(result, hasLength(1));
       expect(result.first, equals(Platform.environment['HOME']));
+    });
+
+    test('it auto-creates lists if not explicitly defined', () {
+      var definitions = {
+        'migrations': DI.add([DI.env('HOME')])
+      };
+      var container = new Container.build([definitions]);
+      var result = container.get('migrations');
+      expect(result, new isInstanceOf<List>());
+      expect(result, hasLength(1));
+      expect(result.first, equals(Platform.environment['HOME']));
+    });
+  });
+
+  group('Static Values:', () {
+    test('it supports static values', () {
+      var definitions = {
+        'MyInt': 352,
+        OneParameter: DI.object()..bindParameter('prop', 736),
+      };
+      var container = new Container.build([definitions]);
+      OneParameter service = container.get(OneParameter);
+      expect(container.get('MyInt'), equals(352));
+      expect(service.prop, equals(736));
     });
   });
 }

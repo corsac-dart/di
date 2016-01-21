@@ -1,8 +1,8 @@
 part of corsac_di;
 
-/// Base class for all container related errors.
-class ContainerError {}
+/// DI error.
+class DIError {
+  final String message;
 
-/// Error related to dependency resolution. Normally thrown when trying to
-/// get an entry from container.
-class DependencyError extends ContainerError {}
+  DIError(this.message);
+}

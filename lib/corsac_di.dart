@@ -1,10 +1,12 @@
 /// Dependency Injection container.
 library corsac_di;
 
-import 'dart:io';
 import 'dart:mirrors';
 
+import 'package:dotenv/dotenv.dart' as dotenv show env;
+
 part 'src/container.dart';
+part 'src/errors.dart';
 part 'src/resolvers.dart';
 
 /// Constant providing easy access to helper functions in [DIHelpers].
@@ -67,9 +69,9 @@ class DIHelpers {
   ///     };
   FactoryResolver factory(EntryFactory func) => new FactoryResolver(func);
 
-  /// Binds entry to an environment variable.
+  /// Binds an entry to an environment variable.
   ///
-  /// You can use this helper to define container entries as well as bind
+  /// One can use this helper to define container entries as well as bind
   /// constructor parameters.
   ///
   ///     var config = {

@@ -111,7 +111,8 @@ different implementations by passing optional `type` parameter.
 In the example above you can also notice usage of the `DI.env()` helper.
 
 The `DI.env()` helper fetches value of an environment variable so that container
-can pass it in the constructor parameter when instantiating an entry.
+can pass it in the constructor parameter when instantiating an entry. It also
+supports [dotenv](https://pub.dartlang.org/packages/dotenv) package.
 
 ## Dynamic lists
 

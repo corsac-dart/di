@@ -66,7 +66,7 @@ class _Container implements Container {
     } else if (id is Type) {
       return new ObjectResolver()..type = id;
     } else {
-      throw new StateError("Can't find resolver for ${id}");
+      throw new DIError("Can't find resolver for ${id}");
     }
   }
 }
