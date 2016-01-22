@@ -160,6 +160,32 @@ void main() {
 }
 ```
 
+## String Expressions
+
+It is possible to define parametrized string entries which will be resolved
+when retrieved from the container. Each parameter in the string expression
+must refer to another container entry.
+
+Example usage of `DI.string` helper:
+
+```dart
+import 'package:corsac_di/corsac_di.dart';
+
+class MigrationManager {
+  final List<Migration> migrations;
+  MigrationManager(this.migrations);
+}
+void main() {
+  var config = {
+    'env': 'prod',
+    'mysql.db': DI.string('{env}_blog'),
+  };
+
+  var container = new DIContainer.build(config);
+  var dbName = container.get('mysql.db'); // dbname == 'prod_blog'
+}
+```
+
 ## License
 
 BSD-2

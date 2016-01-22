@@ -109,4 +109,7 @@ class DIHelpers {
 
   /// Helper for extending dynamic lists.
   ListExtensionHelper add(Iterable items) => new ListExtensionHelper(items);
+
+  StringExpressionResolver string(String expression) =>
+      new StringExpressionResolver(expression);
 }

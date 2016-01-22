@@ -166,8 +166,54 @@ class ListResolver implements DefinitionResolver {
   }
 }
 
+/// Helper for extending dynamic lists.
 class ListExtensionHelper {
+  /// Items to add to the list.
   final Iterable items;
 
   ListExtensionHelper(this.items);
+}
+
+/// Resolver for string expressions.
+///
+/// Expression parameters must be enclosed in curly braces and can contain
+/// only alphanumeric characters (`a-zA-Z0-9`), dot (`.`) and underscore (`_`).
+class StringExpressionResolver implements DefinitionResolver {
+  static final RegExp paramMatcher = new RegExp(r"{[a-zA-Z0-9\._]+}");
+
+  final String expression;
+  final List<String> parameters;
+
+  Map<String, String> _cache = new Map();
+
+  StringExpressionResolver(String expression)
+      : expression = expression,
+        parameters = _extract(expression);
+
+  static List<String> _extract(String expression) {
+    var params = [];
+    var param = paramMatcher.stringMatch(expression);
+    while (param != null) {
+      expression = expression.replaceFirst(param, '');
+      param = param.substring(1, param.length - 1);
+      params.add(param);
+      param = paramMatcher.stringMatch(expression); // get next
+    }
+    return new List.unmodifiable(params);
+  }
+
+  @override
+  resolve(DIContainer container) {
+    if (!_cache.containsKey(expression)) {
+      var result = expression;
+      for (var id in parameters) {
+        var param = '{${id}}';
+        var value = container.get(id);
+        result = result.replaceFirst(param, value);
+      }
+      _cache[expression] = result;
+    }
+
+    return _cache[expression];
+  }
 }

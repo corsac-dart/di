@@ -147,6 +147,22 @@ void main() {
       expect(service.prop, equals(736));
     });
   });
+
+  group('String Expressions:', () {
+    test('it extracts parameters from expression', () {
+      var resolver = new StringExpressionResolver('{env}_{app}_dbname');
+      expect(resolver.parameters, equals(['env', 'app']));
+      expect(resolver.expression, equals('{env}_{app}_dbname'));
+    });
+
+    test('it resolves expression', () {
+      var container = new DIContainer.build([
+        {'env': 'dev', 'app': 'api', 'db': DI.string('{env}_{app}_dbname')}
+      ]);
+
+      expect(container.get('db'), equals('dev_api_dbname'));
+    });
+  });
 }
 
 class MyService {}
