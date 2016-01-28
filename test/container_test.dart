@@ -108,6 +108,15 @@ void main() {
         c.get('Test');
       }, throwsA(new isInstanceOf<DIError>()));
     });
+
+    test('it throws DIError on attempt to override resolved entry', () {
+      var definitions = {'Entry': 'Value',};
+      var container = new DIContainer.build([definitions]);
+      container.get('Entry');
+      expect(() {
+        container.set('Entry', 'NewValue');
+      }, throwsA(new isInstanceOf<DIError>()));
+    });
   });
 
   group('Dynamic Lists:', () {
