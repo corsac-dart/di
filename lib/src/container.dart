@@ -99,7 +99,8 @@ class _DIContainer implements DIContainer {
     if (resolvers.containsKey(id)) {
       return resolvers[id];
     } else if (id is Type) {
-      return new ObjectResolver()..type = id;
+      resolvers[id] = new ObjectResolver()..type = id;
+      return resolvers[id];
     } else {
       throw new DIError("Can't find resolver for ${id}");
     }

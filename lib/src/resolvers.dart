@@ -48,7 +48,7 @@ class ObjectResolver implements DefinitionResolver {
     value =
         (value is DefinitionResolver) ? value : new StaticValueResolver(value);
     if (value is ObjectResolver) {
-      throw new StateError(
+      throw new DIError(
           'Unsupported. Please use DI.get() instead of DI.object() when binding constructor parameters.');
     }
     _parameters[new Symbol(parameterName)] = value;
@@ -56,7 +56,7 @@ class ObjectResolver implements DefinitionResolver {
 
   @override
   dynamic resolve(DIContainer container) {
-    if (_isResolving) throw new StateError(
+    if (_isResolving) throw new DIError(
         'Circular dependency detected for ${type}.');
 
     try {
@@ -98,11 +98,15 @@ class ObjectResolver implements DefinitionResolver {
             try {
               resolvedValues.add(container.get(param.type.reflectedType));
             } catch (e) {
-              throw new StateError(
-                  'Can not resolve parameter ${param.simpleName}. Error: ${e}.');
+              if (e is DIError) {
+                rethrow;
+              } else {
+                throw new DIError(
+                    'Can not resolve parameter ${param.simpleName}. Error: ${e}.');
+              }
             }
           } else {
-            throw new StateError(
+            throw new DIError(
                 'Constructor parameters must either have type annotations or be explicitly bound via bindParameter().');
           }
         }
@@ -133,7 +137,7 @@ class EnvironmentVariableResolver implements DefinitionResolver {
     if (dotenv.env.containsKey(variableName)) {
       return dotenv.env[variableName];
     } else {
-      throw new StateError(
+      throw new DIError(
           'Specified environment variable ${variableName} is not set.');
     }
   }

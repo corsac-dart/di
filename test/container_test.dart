@@ -60,7 +60,8 @@ void main() {
       };
 
       var container = new DIContainer.build([definitions]);
-      expect(() => container.get(OneParameter), throwsStateError);
+      expect(() => container.get(OneParameter),
+          throwsA(new isInstanceOf<DIError>()));
     });
 
     test("it resolves references automagically", () {
@@ -79,6 +80,24 @@ void main() {
       expect(repository, new isInstanceOf<UserInMemoryRepository>());
     });
 
+    test('it throws DIError if entry can not be resolved', () {
+      var c = new DIContainer();
+      expect(() {
+        c.get('Test');
+      }, throwsA(new isInstanceOf<DIError>()));
+    });
+
+    test('it throws DIError on attempt to override resolved entry', () {
+      var definitions = {'Entry': 'Value',};
+      var container = new DIContainer.build([definitions]);
+      container.get('Entry');
+      expect(() {
+        container.set('Entry', 'NewValue');
+      }, throwsA(new isInstanceOf<DIError>()));
+    });
+  });
+
+  group('Environment Variables:', () {
     test("it resolves environment variables", () {
       var definitions = {
         'HomeDir': DI.env('HOME'),
@@ -102,20 +121,48 @@ void main() {
       expect(homeDir, equals('secret'));
     });
 
-    test('it throws DIError if entry can not be resolved', () {
-      var c = new DIContainer();
-      expect(() {
-        c.get('Test');
-      }, throwsA(new isInstanceOf<DIError>()));
+    test('it throws DIError if variable is not set', () {
+      var def = {'env.var': DI.env('NOT_EXISTS')};
+      var container = new DIContainer.build([def]);
+      expect(
+          () => container.get('env.var'), throwsA(new isInstanceOf<DIError>()));
+    });
+  });
+
+  group('Factories:', () {
+    test('it resolves entries using factory', () {
+      var def = {
+        UserRepository: DI.factory((DIContainer container) {
+          return new UserInMemoryRepository();
+        })
+      };
+      var container = new DIContainer.build([def]);
+      var service = container.get(UserRepository);
+      expect(service, new isInstanceOf<UserInMemoryRepository>());
+      var secondAccessService = container.get(UserRepository);
+      expect(secondAccessService, same(service));
+    });
+  });
+
+  group('Objects:', () {
+    test(
+        'it makes sure ObjectResolver can not be used when for binding parameters',
+        () {
+      expect(
+          () => DI.object()..bindParameter('prop', DI.object(UserRepository)),
+          throwsA(new isInstanceOf<DIError>()));
     });
 
-    test('it throws DIError on attempt to override resolved entry', () {
-      var definitions = {'Entry': 'Value',};
-      var container = new DIContainer.build([definitions]);
-      container.get('Entry');
-      expect(() {
-        container.set('Entry', 'NewValue');
-      }, throwsA(new isInstanceOf<DIError>()));
+    test('it detects circular dependencies', () {
+      var container = new DIContainer();
+
+      try {
+        container.get(TeamFactory);
+        fail('Must throw DIError exception.');
+      } catch (e) {
+        expect(e, new isInstanceOf<DIError>());
+        expect(e.message, 'Circular dependency detected for TeamFactory.');
+      }
     });
   });
 
@@ -141,6 +188,19 @@ void main() {
       expect(result, new isInstanceOf<List>());
       expect(result, hasLength(1));
       expect(result.first, equals(Platform.environment['HOME']));
+    });
+
+    test('it supports arbitrary values in the list', () {
+      var definitions = {'migrations': new List()};
+      var definitions2 = {
+        'migrations': DI.add([DI.env('HOME'), 'random.value'])
+      };
+      var container = new DIContainer.build([definitions, definitions2]);
+      var result = container.get('migrations');
+      expect(result, new isInstanceOf<List>());
+      expect(result, hasLength(2));
+      expect(result.first, equals(Platform.environment['HOME']));
+      expect(result.last, equals('random.value'));
     });
   });
 
@@ -194,3 +254,15 @@ class DependentService {
 abstract class UserRepository {}
 
 class UserInMemoryRepository implements UserRepository {}
+
+class TeamFactory {
+  final TeamRepository repo;
+
+  TeamFactory(this.repo);
+}
+
+class TeamRepository {
+  final TeamFactory teamFactory;
+
+  TeamRepository(this.teamFactory);
+}
