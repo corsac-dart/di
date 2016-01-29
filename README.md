@@ -43,7 +43,7 @@ void main() {
 }
 ```
 
-With zero configuration needed this covers a good portion of all use cases.
+With zero configuration needed this covers a good portion of common use cases.
 
 ### 2.2 Configuration
 
@@ -71,16 +71,18 @@ print(container.get('mysql.hostname')); // prints 'localhost'
 
 #### 2.2.2 Environment variables
 
-In some cases projects use environment variables to store sensitive data.
-One can use `DI.env()` helper in such cases.
+It is very common for projects to use environment variables to store sensitive
+configuration data. One can use `DI.env()` helper to associate container entry
+with the value of environment variable:
 
 ```dart
+// say, MYSQL_PASSWORD=123456
 Map config = {
   'mysql.password': DI.env('MYSQL_PASSWORD'),
 };
 
 var container = new DIContainer.build([config]);
-print(container.get('mysql.password')); // prints value of MYSQL_PASSWORD env var.
+print(container.get('mysql.password')); // prints '123456'
 ```
 
 This helper also supports [dotenv](https://pub.dartlang.org/packages/dotenv)
@@ -88,8 +90,8 @@ package.
 
 #### 2.2.3 Objects
 
-We already saw example of getting an object in the "auto-wiring" example. In
-some cases objects can be a bit more complicated:
+We already saw example of getting an object in the "auto-wiring" section.
+However following example will result in an error:
 
 ```dart
 class MySQL {
@@ -103,7 +105,7 @@ var container = new DIContainer();
 container.get(MySQL); // will throw DIError
 ```
 
-There is no way for container to know actual values for `host`, `user` and
+There is no way for container to know actual values of `host`, `user` and
 `password` parameters. But we can tell container where to find these values:
 
 ```dart
@@ -111,10 +113,10 @@ Map config = {
   MySQL: DI.object()
     ..bindParameter('host', 'localhost') // binds static value to `host` parameter
     ..bindParameter('user', DI.env('MYSQL_USER')) // binds value of env variable
-    ..bindParameter('password', DI.env('MYSQL_PASSWORD')) // same
+    ..bindParameter('password', DI.env('MYSQL_PASSWORD')) // another env variable
 };
 
-var container = new DIContainer.build(config);
+var container = new DIContainer.build([config]);
 var mysql = container.get(MySQL); // returns instance of `MySQL` class
 mysql.query(); // do work
 ```
@@ -136,8 +138,8 @@ Here is a typical situation:
 
 ```dart
 abstract class LogHandler {}
-class EmailLogHandler {} // sends email notifications for log entries
-class NullLogHandler {} // silently ignores everything
+class EmailLogHandler implements LogHandler {} // sends email notifications
+class NullLogHandler implements LogHandler {} // silently ignores everything
 ```
 
 One might want to use `NullLogHandler` when running tests to avoid unnecessary
@@ -148,13 +150,14 @@ helper:
 var config = {
   LogHandler: DI.get(NullLogHandler),
 };
+var container = new DIContainer.build([config]);
 container.get(LogHandler); // returns instance of `NullLogHandler`
 ```
 
 #### 2.2.5 String expressions
 
-There is a way to define a parametrized string which value is resolved based
-on the configuration. Parameters in a string must be enclosed in curly braces
+There is a way to define parametrized string which value is resolved based
+on container configuration. Parameters in a string must be enclosed in curly braces
 and refer to another container entry:
 
 ```dart
@@ -163,14 +166,14 @@ var config = {
   'mysql.database': DI.string('{env}_blog'),
 };
 
-var container = new DIContainer.build(config);
+var container = new DIContainer.build([config]);
 print(container.get('mysql.database')); // prints 'prod_blog'
 ```
 
 #### 2.2.6 Dynamic lists
 
-Any `Iterable` entry in the `DIContainer` is treated specially. If it contains
-only static values then it's returned as is:
+Any `Iterable` entry in the `DIContainer` is treated specially. If it only
+contains static values then it will be returned as is:
 
 ```dart
 var config = {
@@ -209,11 +212,15 @@ var baseConfig = {
 };
 // MySQL module configuration
 var mysqlConfig = {
-  'migrations': DI.add([MySQLMigration]), // adds MySQLMigration to the list
+  'migrations': DI.add([
+    DI.get(MySQLMigration) // adds MySQLMigration to the list
+  ]),
 };
 // Mongo module configuration
 var mongoConfig = {
-  'migrations': DI.add([MongoMigration]), // adds MongoMigration to the list
+  'migrations': DI.add([
+    DI.get(MongoMigration) // adds MongoMigration to the list
+  ]),
 };
 
 // `DIContainer.build()` accepts a list of configuration objects
