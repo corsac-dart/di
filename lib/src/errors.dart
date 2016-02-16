@@ -5,4 +5,7 @@ class DIError {
   final String message;
 
   DIError(this.message);
+
+  @override
+  String toString() => "DIError: $message";
 }
