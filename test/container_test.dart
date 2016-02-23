@@ -232,6 +232,23 @@ void main() {
       expect(container.get('db'), equals('dev_api_dbname'));
     });
   });
+
+  group('Dynamic Resolvers:', () {
+    test('it asks dynamic resolvers to resolve entries', () {
+      var container = new DIContainer();
+      container.registerDynamicResolver(
+          new TestDynamicResolver(), (id) => id == 'test');
+      var entry = container.get('test');
+      expect(entry, equals('dynamically resolved'));
+    });
+  });
+}
+
+class TestDynamicResolver implements DynamicDefinitionResolver {
+  @override
+  resolve(id, DIContainer container) {
+    return 'dynamically resolved';
+  }
 }
 
 class MyService {}

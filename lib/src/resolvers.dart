@@ -1,7 +1,13 @@
 part of corsac_di;
 
+/// Interface for definition resolvers.
 abstract class DefinitionResolver {
   dynamic resolve(DIContainer container);
+}
+
+/// Interface for dynamic definition resolvers.
+abstract class DynamicDefinitionResolver {
+  dynamic resolve(id, DIContainer container);
 }
 
 class ReferenceResolver implements DefinitionResolver {
@@ -56,8 +62,8 @@ class ObjectResolver implements DefinitionResolver {
 
   @override
   dynamic resolve(DIContainer container) {
-    if (_isResolving) throw new DIError(
-        'Circular dependency detected for ${type}.');
+    if (_isResolving)
+      throw new DIError('Circular dependency detected for ${type}.');
 
     try {
       _isResolving = true;

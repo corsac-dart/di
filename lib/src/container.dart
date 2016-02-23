@@ -24,6 +24,18 @@ abstract class DIContainer {
   /// they accessed with `DIContainer.get()`.
   void set(id, value);
 
+  /// Registers special dynamic resolver with this container.
+  ///
+  /// Dynamic resolvers are more flexible than normal ones but should be used
+  /// very carefully. It is recommended to use standard `DI.*` resolvers in most
+  /// cases.
+  ///
+  /// The [test] function must check if provided entry `id` can be handled by
+  /// [resolver]. The resolver will be invoked only if `test` function
+  /// returns `true`.
+  void registerDynamicResolver(
+      DynamicDefinitionResolver resolver, bool test(id));
+
   /// Creates new container.
   ///
   /// If you want to pass configurations for container entries use the
@@ -54,6 +66,7 @@ abstract class DIContainer {
 class _DIContainer implements DIContainer {
   final Map resolvers;
   final Map _singletons = {};
+  final Map<DynamicDefinitionResolver, Function> _dynamicResolvers = {};
 
   _DIContainer(this.resolvers);
 
@@ -65,7 +78,11 @@ class _DIContainer implements DIContainer {
     }
 
     var resolver = getResolver(id);
-    _singletons[id] = resolver.resolve(this);
+    if (resolver is DefinitionResolver) {
+      _singletons[id] = resolver.resolve(this);
+    } else {
+      _singletons[id] = resolver.resolve(id, this); // dynamic resolver
+    }
     return _singletons[id];
   }
 
@@ -95,7 +112,16 @@ class _DIContainer implements DIContainer {
     }
   }
 
-  DefinitionResolver getResolver(id) {
+  dynamic getResolver(id) {
+    if (_dynamicResolvers.isNotEmpty) {
+      for (var resolver in _dynamicResolvers.keys) {
+        var test = _dynamicResolvers[resolver];
+        if (test(id)) {
+          return resolver;
+        }
+      }
+    }
+
     if (resolvers.containsKey(id)) {
       return resolvers[id];
     } else if (id is Type) {
@@ -104,5 +130,11 @@ class _DIContainer implements DIContainer {
     } else {
       throw new DIError("Can't find resolver for ${id}");
     }
+  }
+
+  @override
+  void registerDynamicResolver(
+      DynamicDefinitionResolver resolver, bool test(id)) {
+    _dynamicResolvers[resolver] = test;
   }
 }
