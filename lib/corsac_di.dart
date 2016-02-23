@@ -4,9 +4,11 @@ library corsac_di;
 import 'dart:mirrors';
 
 import 'package:dotenv/dotenv.dart' as dotenv show env;
+import 'dart:collection';
 
 part 'src/container.dart';
 part 'src/errors.dart';
+part 'src/middleware.dart';
 part 'src/resolvers.dart';
 
 /// Constant providing easy access to helper functions in [DIHelpers].

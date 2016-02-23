@@ -233,20 +233,19 @@ void main() {
     });
   });
 
-  group('Dynamic Resolvers:', () {
-    test('it asks dynamic resolvers to resolve entries', () {
+  group('Middleware:', () {
+    test('it asks middlewares to resolve entries', () {
       var container = new DIContainer();
-      container.registerDynamicResolver(
-          new TestDynamicResolver(), (id) => id == 'test');
+      container.addMiddleware(new TestMiddleware());
       var entry = container.get('test');
       expect(entry, equals('dynamically resolved'));
     });
   });
 }
 
-class TestDynamicResolver implements DynamicDefinitionResolver {
+class TestMiddleware implements DIContainerMiddleware {
   @override
-  resolve(id, DIContainer container) {
+  get(id, DIMiddlewarePipeline next) {
     return 'dynamically resolved';
   }
 }

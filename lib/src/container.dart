@@ -24,17 +24,10 @@ abstract class DIContainer {
   /// they accessed with `DIContainer.get()`.
   void set(id, value);
 
-  /// Registers special dynamic resolver with this container.
+  /// Registers middleware with this container.
   ///
-  /// Dynamic resolvers are more flexible than normal ones but should be used
-  /// very carefully. It is recommended to use standard `DI.*` resolvers in most
-  /// cases.
-  ///
-  /// The [test] function must check if provided entry `id` can be handled by
-  /// [resolver]. The resolver will be invoked only if `test` function
-  /// returns `true`.
-  void registerDynamicResolver(
-      DynamicDefinitionResolver resolver, bool test(id));
+  /// Middlewares provide a way to extend resolution of container entries.
+  void addMiddleware(DIContainerMiddleware middleware);
 
   /// Creates new container.
   ///
@@ -66,7 +59,7 @@ abstract class DIContainer {
 class _DIContainer implements DIContainer {
   final Map resolvers;
   final Map _singletons = {};
-  final Map<DynamicDefinitionResolver, Function> _dynamicResolvers = {};
+  final List<DIContainerMiddleware> _middlewares = [];
 
   _DIContainer(this.resolvers);
 
@@ -77,12 +70,10 @@ class _DIContainer implements DIContainer {
       return _singletons[id];
     }
 
-    var resolver = getResolver(id);
-    if (resolver is DefinitionResolver) {
-      _singletons[id] = resolver.resolve(this);
-    } else {
-      _singletons[id] = resolver.resolve(id, this); // dynamic resolver
-    }
+    var queue = new Queue.from(_middlewares);
+    var pipeline = new DIMiddlewarePipeline._(queue, this);
+
+    _singletons[id] = pipeline.get(id);
     return _singletons[id];
   }
 
@@ -112,16 +103,7 @@ class _DIContainer implements DIContainer {
     }
   }
 
-  dynamic getResolver(id) {
-    if (_dynamicResolvers.isNotEmpty) {
-      for (var resolver in _dynamicResolvers.keys) {
-        var test = _dynamicResolvers[resolver];
-        if (test(id)) {
-          return resolver;
-        }
-      }
-    }
-
+  DefinitionResolver getResolver(id) {
     if (resolvers.containsKey(id)) {
       return resolvers[id];
     } else if (id is Type) {
@@ -133,8 +115,7 @@ class _DIContainer implements DIContainer {
   }
 
   @override
-  void registerDynamicResolver(
-      DynamicDefinitionResolver resolver, bool test(id)) {
-    _dynamicResolvers[resolver] = test;
+  void addMiddleware(DIContainerMiddleware middleware) {
+    _middlewares.add(middleware);
   }
 }

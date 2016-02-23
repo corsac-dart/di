@@ -5,11 +5,6 @@ abstract class DefinitionResolver {
   dynamic resolve(DIContainer container);
 }
 
-/// Interface for dynamic definition resolvers.
-abstract class DynamicDefinitionResolver {
-  dynamic resolve(id, DIContainer container);
-}
-
 class ReferenceResolver implements DefinitionResolver {
   final dynamic id;
 
