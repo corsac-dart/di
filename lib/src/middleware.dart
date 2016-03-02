@@ -7,22 +7,22 @@ part of corsac_di;
 ///
 /// Possible use cases for middlewares are: decorating particular container
 /// entry or defining a "proxy".
-abstract class DIContainerMiddleware {
-  dynamic get(id, DIMiddlewarePipeline next);
+abstract class DIMiddleware {
+  dynamic resolve(id, DIMiddlewarePipeline next);
 }
 
 class DIMiddlewarePipeline {
-  final Queue<DIContainerMiddleware> _queue;
+  final Queue<DIMiddleware> _queue;
   final _DIContainer _container;
 
   DIMiddlewarePipeline._(this._queue, this._container);
 
-  dynamic get(id) {
+  dynamic resolve(id) {
     if (_queue.isEmpty) {
       return _container.getResolver(id).resolve(_container);
     } else {
       var i = _queue.removeFirst();
-      return i.get(id, this);
+      return i.resolve(id, this);
     }
   }
 }

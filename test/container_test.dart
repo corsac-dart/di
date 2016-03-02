@@ -243,9 +243,9 @@ void main() {
   });
 }
 
-class TestMiddleware implements DIContainerMiddleware {
+class TestMiddleware implements DIMiddleware {
   @override
-  get(id, DIMiddlewarePipeline next) {
+  resolve(id, DIMiddlewarePipeline next) {
     return 'dynamically resolved';
   }
 }

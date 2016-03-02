@@ -27,7 +27,7 @@ abstract class DIContainer {
   /// Registers middleware with this container.
   ///
   /// Middlewares provide a way to extend resolution of container entries.
-  void addMiddleware(DIContainerMiddleware middleware);
+  void addMiddleware(DIMiddleware middleware);
 
   /// Creates new container.
   ///
@@ -59,7 +59,7 @@ abstract class DIContainer {
 class _DIContainer implements DIContainer {
   final Map resolvers;
   final Map _singletons = {};
-  final List<DIContainerMiddleware> _middlewares = [];
+  final List<DIMiddleware> _middlewares = [];
 
   _DIContainer(this.resolvers);
 
@@ -73,7 +73,7 @@ class _DIContainer implements DIContainer {
     var queue = new Queue.from(_middlewares);
     var pipeline = new DIMiddlewarePipeline._(queue, this);
 
-    _singletons[id] = pipeline.get(id);
+    _singletons[id] = pipeline.resolve(id);
     return _singletons[id];
   }
 
@@ -115,7 +115,7 @@ class _DIContainer implements DIContainer {
   }
 
   @override
-  void addMiddleware(DIContainerMiddleware middleware) {
+  void addMiddleware(DIMiddleware middleware) {
     _middlewares.add(middleware);
   }
 }
