@@ -115,3 +115,29 @@ class DIHelpers {
   StringExpressionResolver string(String expression) =>
       new StringExpressionResolver(expression);
 }
+
+/// Helper which can be used to declare generic type entries in the container
+/// configuration.
+///
+/// Since Types are not first-class objects in Dart following is invalid Dart
+/// syntax:
+///
+///     return {
+///       Repository<User>: DI.get(MySQLRepository<User>),
+///     };
+///
+/// To overcome this limitation one can use `diType` helper:
+///
+///     return {
+///       const diType<Repository<User>>(): DI.get(const diType<MySQLRepository<User>>()),
+///     };
+///
+/// It is also possible to use this helper to retrieve entries from the container:
+///
+///     var repo = container.get(const diType<Repository<User>>());
+class diType<T> {
+  /// Actual type of the container entry.
+  Type get type => T;
+
+  const diType();
+}

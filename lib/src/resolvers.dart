@@ -8,7 +8,7 @@ abstract class DefinitionResolver {
 class ReferenceResolver implements DefinitionResolver {
   final dynamic id;
 
-  ReferenceResolver(this.id);
+  ReferenceResolver(id) : id = (id is diType) ? id.type : id;
 
   @override
   resolve(DIContainer container) => container.get(id);

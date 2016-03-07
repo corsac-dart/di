@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:test/test.dart';
 import 'package:corsac_di/corsac_di.dart';
 import 'package:dotenv/dotenv.dart';
+import 'dart:mirrors';
 
 void main() {
   group('Container:', () {
@@ -241,6 +242,30 @@ void main() {
       expect(entry, equals('dynamically resolved'));
     });
   });
+
+  group('Generic container entries:', () {
+    test('it can resolve generic entries declared with diType helper', () {
+      var conf = {
+        const diType<Repository<User>>():
+            DI.get(const diType<MySQLRepository<User>>()),
+      };
+      var container = new DIContainer.build([conf]);
+      execute((Repository<User> repo) {
+        expect(repo, new isInstanceOf<MySQLRepository<User>>());
+      }, container);
+    });
+  });
+}
+
+dynamic execute(Function body, DIContainer container) {
+  ClosureMirror mirror = reflect(body);
+  var positionalArguments = [];
+  for (var param in mirror.function.parameters) {
+    if (!param.isNamed) {
+      positionalArguments.add(container.get(param.type.reflectedType));
+    }
+  }
+  return mirror.apply(positionalArguments).reflectee;
 }
 
 class TestMiddleware implements DIMiddleware {
@@ -266,6 +291,12 @@ class DependentService {
   final MyService myService;
   DependentService(this.myService);
 }
+
+class User {}
+
+class Repository<T> {}
+
+class MySQLRepository<T> implements Repository<T> {}
 
 abstract class UserRepository {}
 

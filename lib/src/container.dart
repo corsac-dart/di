@@ -65,41 +65,45 @@ class _DIContainer implements DIContainer {
 
   @override
   get(id) {
+    var entryId = (id is diType) ? id.type : id;
+
     // Check if entry already exists in the singleton map.
-    if (_singletons.containsKey(id)) {
-      return _singletons[id];
+    if (_singletons.containsKey(entryId)) {
+      return _singletons[entryId];
     }
 
     var queue = new Queue.from(_middlewares);
     var pipeline = new DIMiddlewarePipeline._(queue, this);
 
-    _singletons[id] = pipeline.resolve(id);
-    return _singletons[id];
+    _singletons[entryId] = pipeline.resolve(entryId);
+    return _singletons[entryId];
   }
 
   @override
   void set(id, value) {
-    if (_singletons.containsKey(id)) {
+    var entryId = (id is diType) ? id.type : id;
+
+    if (_singletons.containsKey(entryId)) {
       throw new DIError(
           'Can not override container entry as it has been resolved already.');
     }
 
     if (value is Iterable) {
-      resolvers[id] = new ListResolver(value);
+      resolvers[entryId] = new ListResolver(value);
     } else if (value is ListExtensionHelper) {
       Iterable items = value.items;
-      if (resolvers.containsKey(id)) {
-        (resolvers[id] as ListResolver).list.addAll(items);
+      if (resolvers.containsKey(entryId)) {
+        (resolvers[entryId] as ListResolver).list.addAll(items);
       } else {
-        resolvers[id] = new ListResolver(items);
+        resolvers[entryId] = new ListResolver(items);
       }
     } else if (value is DefinitionResolver) {
       if (value is ObjectResolver) {
-        value.type ??= id;
+        value.type ??= entryId;
       }
-      resolvers[id] = value;
+      resolvers[entryId] = value;
     } else {
-      resolvers[id] = new StaticValueResolver(value);
+      resolvers[entryId] = new StaticValueResolver(value);
     }
   }
 
