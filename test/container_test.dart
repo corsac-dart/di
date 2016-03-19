@@ -12,6 +12,7 @@ void main() {
       var container = new DIContainer();
       expect(container, new isInstanceOf<DIContainer>());
     });
+
     test("it resolves objects automagically", () {
       var container = new DIContainer.build([{}]);
       var service = container.get(MyService);
@@ -19,6 +20,7 @@ void main() {
       var secondCallService = container.get(MyService);
       expect(secondCallService, same(service));
     });
+
     test("it resolves objects from definition", () {
       var definitions = {MyService: DI.object(),};
 
@@ -27,6 +29,15 @@ void main() {
       expect(service, new isInstanceOf<MyService>());
       var secondCallService = container.get(MyService);
       expect(secondCallService, same(service));
+    });
+
+    test('it indicates if entry is defined or can be auto-wired', () {
+      var definitions = {'static.entry': 'value'};
+
+      var container = new DIContainer.build([definitions]);
+      expect(container.has('static.entry'), isTrue);
+      expect(container.has(MyService), isTrue);
+      expect(container.has('not.defined'), isFalse);
     });
 
     test("it resolves objects with custom constructor", () {

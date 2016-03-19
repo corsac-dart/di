@@ -5,6 +5,10 @@ abstract class DIContainer {
   /// Returns an entry specified by [id] from this DIContainer.
   get(id);
 
+  /// Returns `true` if entry with specified `id` defined in this container or
+  /// can be auto-wired (only applicable to Types).
+  has(id);
+
   /// Sets an entry with [id] to a specified [value].
   ///
   /// The value can be any object as well as definition resolver such
@@ -77,6 +81,24 @@ class _DIContainer implements DIContainer {
 
     _singletons[entryId] = pipeline.resolve(entryId);
     return _singletons[entryId];
+  }
+
+  @override
+  has(id) {
+    var entryId = (id is diType) ? id.type : id;
+
+    if (resolvers.containsKey(entryId)) {
+      return true;
+    } else if (entryId is Type) {
+      try {
+        get(entryId);
+        return true;
+      } on DIError {
+        return false;
+      }
+    } else {
+      return false;
+    }
   }
 
   @override
