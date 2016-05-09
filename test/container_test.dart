@@ -266,6 +266,26 @@ void main() {
       }, container);
     });
   });
+
+  group('Typedefs:', () {
+    test('it supports typedefs', () {
+      var conf = {MyFnDef: myImpl, ConsumerOfTypedef: DI.object()};
+      var container = new DIContainer.build([conf]);
+      execute((ConsumerOfTypedef consumer) {
+        expect(consumer.fn('foo'), 'foo');
+      }, container);
+    });
+  });
+
+  group('Private properties:', () {
+    test('it supports private properties in constructors', () {
+      var conf = {WithPrivate: DI.object()};
+      var container = new DIContainer.build([conf]);
+      var withPrivate = container.get(WithPrivate);
+      expect(withPrivate, new isInstanceOf<WithPrivate>());
+      expect(withPrivate.myService, new isInstanceOf<MyService>());
+    });
+  });
 }
 
 dynamic execute(Function body, DIContainer container) {
@@ -277,6 +297,17 @@ dynamic execute(Function body, DIContainer container) {
     }
   }
   return mirror.apply(positionalArguments).reflectee;
+}
+
+class ConsumerOfTypedef {
+  final MyFnDef fn;
+  ConsumerOfTypedef(this.fn);
+}
+
+typedef String MyFnDef(String data);
+
+myImpl(String data) {
+  return data;
 }
 
 class TestMiddleware implements DIMiddleware {
@@ -323,4 +354,12 @@ class TeamRepository {
   final TeamFactory teamFactory;
 
   TeamRepository(this.teamFactory);
+}
+
+class WithPrivate {
+  final MyService _myService;
+
+  MyService get myService => _myService;
+
+  WithPrivate(this._myService);
 }
